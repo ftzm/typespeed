@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto+Slab">
+  </head>
+  <body>
+
+    <div id="app"></div>
+  <script src="main.js"></script>
+  <script>
+    async function flagElm() {
+     var texts = await fetch('texts.json').then(response => response.json())
+     var node = document.getElementById('app');
+     Elm.App.embed(
+       node,
+       {texts: texts}
+     );
+    }
+    flagElm()
+  </script>
+
+  </body>
+</html>

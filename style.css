@@ -1,0 +1,171 @@
+html {
+    height: 100%;
+}
+
+body {
+    padding: 0;
+    margin: 0;
+    height: 100%;
+}
+
+#app {
+    height: 100%;
+}
+
+.wrong {
+    color: red;
+    /*text-decoration: underline;
+    text-decoration-color: red;*/
+}
+
+.grid-wrapper {
+    display: grid;
+    grid-template-rows: 250px 200px auto;
+    grid-template-columns: repeat(8, 1fr);
+    grid-gap: 0px;
+    grid-template-areas:
+      "a a b b b b b b"
+      "c c c c c c c c"
+      "e e f f f f f f";
+    height: 100%;
+}
+
+.cursor {
+    color: red;
+}
+
+.typeage {
+  white-space: pre-wrap;
+  font-family: 'Roboto Slab', serif;
+  font-size: 18pt;
+  height: 200px;
+}
+
+.past {
+    text-align: right;
+}
+
+.item-a {
+     grid-area: a;
+}
+
+.item-b {
+     grid-area: b;
+}
+
+.item-c {
+     grid-area: c;
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    grid-gap: 0px;
+    grid-auto-rows: 100px;
+    grid-template-areas:
+          "a a b b b b b b"
+	  "a a b b b b b b";
+}
+
+.item-d {
+     grid-area: d;
+}
+
+.item-e {
+     grid-area: e;
+}
+
+.item-f {
+     grid-area: f;
+}
+
+.logo-container {
+    background-color: #f9f9f9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.info-container {
+    background-color: #f5f5f5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.main-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    grid-area: c;
+}
+
+.main {
+    font-family: 'Roboto Slab', serif;
+    font-size: 18pt;
+    flex: 1;
+    text-align: center;
+
+}
+
+.vert-flex-wrapper {
+    display: flex;
+    align-items: center;
+}
+
+.vert-flex {
+    flex: 1;
+}
+
+.info {
+    flex: 1;
+}
+
+.midline-container {
+    dispay: flex;
+    justify-content: center
+    align-items: center;
+}
+
+.leftGrad {
+    background: linear-gradient(to right, rgba(255,255,255,1), rgba(255,255,255,1) 20%, rgba(255,255,255,0));
+    position: absolute;
+    left: 0;
+    top: 250px;
+    height: 200px;
+    width: 25%;
+}
+
+.rightGrad {
+    background: linear-gradient(to left, rgba(255,255,255,1), rgba(255,255,255,1) 20%, rgba(255,255,255,0));
+    position: absolute;
+    right: 0;
+    top: 250px;
+    height: 200px;
+    width: 25%;
+}
+
+.future {
+    white-space: pre;
+    overflow: hidden;
+    text-overflow: nowrap;
+}
+
+.statBox {
+  display: grid;
+  grid-template-columns: 1fr 7fr;
+}
+
+.wpm {
+    padding-top: 34px;
+    color: #777777;
+    font-family: 'Roboto Slab', serif;
+    font-size: 18pt;
+    text-align: right;
+}
+
+.logo {
+    border: 5px solid red;
+    padding: 10px;
+    font-family: 'Roboto Slab', serif;
+    font-size: 28pt;
+    font-weight: bold;
+}
