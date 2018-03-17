@@ -1,13 +1,13 @@
 module State exposing (subscriptions, init, update)
 
 import Types exposing (..)
+import ParseKeys exposing (keyToChar)
 import Keyboard.Extra exposing (..)
 import Array
 import List.Zipper
 import Time
 import Task
 import Random
-import Char
 
 ------------------------------------------------------------
 -- Subscriptions
@@ -23,7 +23,8 @@ subscriptions _ =
 -- Init
 
 init : Flags -> (Model, Cmd Types.Msg)
-init f = ({ initModel | textList = Array.fromList f.texts}, Cmd.none)
+--init f = ({ initModel | textList = Array.fromList f.texts}, Cmd.none)
+init f = update RollText { initModel | textList = Array.fromList f.texts}
 
 initModel : Model
 initModel =
@@ -33,8 +34,8 @@ initModel =
   , shift = False
   , gameState = PreStart
   , startTime = 0.0
-  , wpms = []
-  , acc = 0.0
+  , pauseStart = 0.0
+  , stats = []
   }
 
 texts : Array.Array String
@@ -53,30 +54,35 @@ zipperText s =  List.Zipper.withDefault '!'
 -- Update
 
 update : Types.Msg -> Model -> (Model, Cmd Types.Msg)
-update msg model =
+update msg m =
   case msg of
-    Types.KeyDown k -> handleDown k model
-    Types.KeyUp k -> handleUp k model
-    Start -> ({ model | gameState = Running }, Task.perform SetStartTime Time.now)
-    SetStartTime t -> ({ model | startTime = t }, Cmd.none)
-    Finish -> (model, Task.perform CalcWpm Time.now)
-    CalcWpm t -> ({ model | wpms = (calcWpm model.typed t model.startTime) :: model.wpms, acc = calcAcc model.typed, gameState = Done }, Cmd.none)
-    RollText -> (model, Random.generate NewText (Random.int 0 2))
-    NewText i -> newText model i
-    _ -> (model, Cmd.none)
+    Types.KeyDown k -> handleDown k m
+    Types.KeyUp k -> handleUp k m
+    Start -> ({ m | gameState = Running }, Task.perform SetStartTime Time.now)
+    SetStartTime t -> ({ m | startTime = t }, Cmd.none)
+    Finish -> (m, Task.perform CalcWpm Time.now)
+    CalcWpm t -> ({ m | stats = (calcWpm m.typed t m.startTime, calcAcc m.typed) :: m.stats, gameState = Done }, Cmd.none)
+    RollText -> (m, Random.generate NewText (Random.int 0 ((Array.length m.textList) - 1)))
+    NewText i -> newText m i
+    Types.Pause -> ({ m | gameState = Paused }, Task.perform SetPauseStart Time.now)
+    SetPauseStart t -> ({ m | pauseStart = t }, Cmd.none)
+    Unpause k -> ({ m | gameState = Running }, Task.perform (UnpauseAdjust k) Time.now)
+    UnpauseAdjust k t -> handleDown k <| pauseAdjust t m
 
---updateRunning : Msg -> Model -> (Model, Cmd Msg)
---updateRunning msg model = case msg of
---  Finish -> (model, Task.perform CalcWpm Time.now)
---  _ -> (model, Cmd.none)
+pauseAdjust : Time.Time -> Model -> Model
+pauseAdjust t m =
+    let
+        offset = t - m.pauseStart
+    in
+        { m | startTime = m.startTime + offset}
 
 avg : List Float -> Float
 avg list = case list of
   [] -> 0
   _  -> (list |> List.sum ) / (list |> List.length |> toFloat)
 
-avgWpm : Model -> Float
-avgWpm m = avg m.wpms
+--avgWpm : Model -> Float
+--avgWpm m = avg m.wpms
 
 calcWpm : (List KeyAttempt) -> Time.Time -> Time.Time -> Float
 calcWpm ks s e =
@@ -91,7 +97,7 @@ calcAcc ks =
     correct = toFloat <| List.length <| List.filter (\k -> k.correct) ks
     total = toFloat <| List.length ks
   in
-    correct / total
+    correct / total * 100
 
 newText : Model -> Int -> (Model, Cmd Types.Msg)
 newText m i = ({ m | text = zipperText (Maybe.withDefault "Fail" <| Array.get i m.textList) , typed = [], gameState = PreStart }, Cmd.none)
@@ -101,16 +107,17 @@ handleDown k m =
   let s = m.gameState
   in case s of
     PreStart -> case k of
-      Enter -> update Start m
-      _ -> (m, Cmd.none)
+      Shift -> ({ m | shift = True }, Cmd.none)
+      _ -> update Start (Maybe.withDefault m (Maybe.map (Tuple.first << (addChar1 m)) (keyToChar m.shift k)))
     Running -> case k of
+      Escape -> update Types.Pause m
       BackSpace -> (removeChar m, Cmd.none)
       Shift -> ({ m | shift = True }, Cmd.none)
-      _ -> Maybe.withDefault (m, Cmd.none) (Maybe.map (addChar m) (keyToChar m.shift k))
+      _ -> Maybe.withDefault (m, Cmd.none) (Maybe.map (addChar1 m) (keyToChar m.shift k))
+    Paused -> update (Unpause k) m
     Done -> case k of
       Enter -> update RollText m
       _ -> (m, Cmd.none)
-    _ -> (m, Cmd.none)
 
 handleUp : Key -> Model -> (Model, Cmd Types.Msg)
 handleUp k m =
@@ -118,15 +125,27 @@ handleUp k m =
       Shift -> ({ m | shift = False }, Cmd.none)
       _     -> (m, Cmd.none)
 
-addChar : Model -> Char -> (Model, Cmd Types.Msg)
+addChar1 : Model -> Char -> (Model, Cmd Types.Msg)
+addChar1 m c =
+  let
+    correct = c == List.Zipper.current m.text
+    textAdded = { m | typed = {char = c , correct = correct} :: m.typed}
+    nextModel = case List.Zipper.next m.text of
+      Nothing -> update Finish textAdded
+      Just t -> ({ textAdded |  text = t }, Cmd.none)
+  in nextModel
+
+textForward : Model -> (Model, Cmd Types.Msg)
+textForward m = case List.Zipper.next m.text of
+      Nothing -> update Finish m
+      Just t -> ({ m |  text = t }, Cmd.none)
+
+addChar : Model -> Char -> Model
 addChar m c =
   let
     correct = c == List.Zipper.current m.text
-    nextText = List.Zipper.next m.text
-    nextModel = case nextText of
-      Nothing -> update Finish { m | typed = {char = c , correct = correct} :: m.typed}
-      Just t -> ({ m | typed = {char = c , correct = correct} :: m.typed, text = t }, Cmd.none)
-  in nextModel
+  in
+    { m | typed = {char = c , correct = correct} :: m.typed}
 
 removeChar : Model -> Model
 removeChar m =
@@ -136,37 +155,3 @@ removeChar m =
       Nothing -> m
       Just t -> { m | typed = (List.drop 1 m.typed), text = t }
   in nextModel
-
-keyToChar : Bool -> Key -> Maybe Char
-keyToChar shift k =
- let char = case k of
-   CharA -> Just 'a'
-   CharB -> Just 'b'
-   CharC -> Just 'c'
-   CharD -> Just 'd'
-   CharE -> Just 'e'
-   CharF -> Just 'f'
-   CharG -> Just 'g'
-   CharH -> Just 'h'
-   CharI -> Just 'i'
-   CharJ -> Just 'j'
-   CharK -> Just 'k'
-   CharL -> Just 'l'
-   CharM -> Just 'm'
-   CharN -> Just 'n'
-   CharO -> Just 'o'
-   CharP -> Just 'p'
-   CharQ -> Just 'q'
-   CharR -> Just 'r'
-   CharS -> Just 's'
-   CharT -> Just 't'
-   CharU -> Just 'u'
-   CharV -> Just 'v'
-   CharW -> Just 'w'
-   CharX -> Just 'x'
-   CharY -> Just 'y'
-   CharZ -> Just 'z'
-   Space -> Just ' '
-   Period -> Just '.'
-   _     -> Nothing
- in if shift then Maybe.map Char.toUpper char else char

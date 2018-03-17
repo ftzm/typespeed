@@ -11,16 +11,19 @@ view : Model -> Html Msg
 view m =
   let content = case m.gameState of
     Done -> viewDone m
-    PreStart -> viewPreStart m
+    --PreStart -> viewPreStart m
+    PreStart -> viewTypeage m
     _ -> viewTypeage m
   in
     div [class "grid-wrapper"]
       [ div [class "item-a logo-container"] [logo]
       , div [class "item-b info-container"] [performance m]
       , content
-      , div [class "item-e logo-container"] [text " "]
-      , div [class "item-f info-container"] [text " "]
+      , div [class "item-e credit"] [span [] [text "Written by ", a [href "#"] [text "Matthew Fitzsimmons"], br [] [], text "as an exercise in ", a [href "#"] [text "Elm."]]]
+      , div [class "item-f instructions"] [instructions m]
       ]
+
+
 
 logo : Html Msg
 logo = div [class "logo"] [text "TypeSpeed"]
@@ -30,14 +33,29 @@ viewPreStart m = div [class "main-container"] [div [class "main"] [text "Press e
 
 viewDone : Model -> Html Msg
 viewDone m =
-  div [class "main-container"]
-    [ div [class "main"]
-        [ text "WPM: "
-        , text <| Round.round 2 (Maybe.withDefault  0 (List.head m.wpms))
-        , text " Accuracy: "
-        , text <| Round.round 2 m.acc
-        ]
-    ]
+    let
+        w = Maybe.withDefault 0 (Maybe.map Tuple.first <| List.head m.stats)
+        wt = text <| Round.round 0 w ++ " Words per minute, with "
+        wm = text <| if w > 70 then
+                 "You're flying!"
+             else if w > 50 then
+                 "You're getting fast!"
+             else if w > 40 then
+                 "Solid Speed."
+             else if w > 30 then
+                 "A workable speed."
+             else
+                 "Keep Trying."
+        a = Maybe.withDefault 0 (Maybe.map Tuple.second <| List.head m.stats)
+        at = text <| Round.round 0 a ++ " percent accuracy. "
+        am = text <| if a == 100 then
+                 " Perfect Accuracy!"
+             else if a > 95 then
+                 " Good Accuracy."
+             else
+                 " Work or your accuracy."
+    in
+        div [class "main-container"] [ div [class "main"] [wt, at, wm, am]]
 
 takeLast : Int -> List a -> List a
 takeLast n l = List.reverse <| List.take n <| List.reverse <| l
@@ -52,7 +70,19 @@ viewTypeage m =
     past = [div [class "vert-flex"] [pastText, br [] [], div [] typedText, div [class "leftGrad"] [text " "]]]
     presentText = text <| String.fromList <| [List.Zipper.current l]
     futureText = text <| String.fromList <| List.take 1000 <| List.Zipper.after l
-    future = [div [class "vert-flex future"] [presentText, futureText, br [] [], span [class "cursor"] [text "_"], div [class "rightGrad"] [text " "]]]
+    future = [div [class "vert-flex future"] [presentText, futureText, br [] [], span [class "cursor"] [text " "], div [class "rightGrad"] [text " "]]]
 
   in
     div [class "item-c typeage"] [div [class "item-a past vert-flex-wrapper"] past, div [class "item-b future vert-flex-wrapper"] future]
+
+instructions : Model -> Html Msg
+instructions m =
+    let
+        i = text <| case m.gameState of
+                PreStart -> "Begin typing to start the test."
+                Running -> "Press Escape to pause."
+                Paused -> "Press any key to resume typing."
+                Done -> "Press Enter to continue."
+        p = span [Html.Attributes.style [("color", "rgba(255, 0, 0 ,0.5)"), ("font-weight", "bold")]] [text "> "]
+    in
+        div [] [p, i]

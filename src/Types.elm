@@ -23,8 +23,8 @@ type alias Model =
   , text : List.Zipper.Zipper Char
   , shift : Bool
   , startTime : Time.Time
-  , wpms : List Float
-  , acc : Float
+  , pauseStart : Time.Time
+  , stats : List (Float, Float) -- (wpm, acc)
   }
 
 type alias Flags =
@@ -35,9 +35,12 @@ type Msg = KeyUp Key
          | KeyDown Key
          | Start
          | SetStartTime Time.Time
-         | Pause
-         | Unpause
          | Finish
          | CalcWpm Time.Time
          | RollText
          | NewText Int
+         -- pause cycle
+         | Pause
+         | SetPauseStart Time.Time
+         | Unpause Key
+         | UnpauseAdjust Key Time.Time

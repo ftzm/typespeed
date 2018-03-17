@@ -34,6 +34,34 @@ body {
     color: red;
 }
 
+.credit {
+    color: #cccccc;
+    background-color: #f9f9f9;
+    font-family: 'Roboto Slab', serif;
+    line-height: 1.8;
+    display: flex;
+    align-items: flex-start;
+    padding-top: 15%;
+    justify-content: center;
+}
+
+.instructions {
+    color: #777777;
+    background-color: #f5f5f5;
+    font-family: 'Roboto Slab', serif;
+    line-height: 1.8;
+    display: flex;
+    align-items: flex-start;
+    padding-top: 60px;
+    padding-left: 50px;
+    font-size: 16pt;
+}
+
+.credit a {
+    color: rgba(255, 0, 0, 0.2);
+    text-decoration: none;
+}
+
 .typeage {
   white-space: pre-wrap;
   font-family: 'Roboto Slab', serif;
@@ -149,23 +177,45 @@ body {
     text-overflow: nowrap;
 }
 
-.statBox {
-  display: grid;
-  grid-template-columns: 1fr 7fr;
-}
-
-.wpm {
-    padding-top: 34px;
-    color: #777777;
-    font-family: 'Roboto Slab', serif;
-    font-size: 18pt;
-    text-align: right;
-}
-
 .logo {
     border: 5px solid red;
     padding: 10px;
     font-family: 'Roboto Slab', serif;
     font-size: 28pt;
     font-weight: bold;
+}
+
+.statBox {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 5fr;
+}
+
+.prevwpm {
+    color: #777777;
+    font-family: 'Roboto Slab', serif;
+    font-size: 18pt;
+    text-align: left;
+}
+
+.avgwpm {
+    color: #777777;
+    font-family: 'Roboto Slab', serif;
+    font-size: 18pt;
+    text-align: left;
+}
+
+.chart {
+}
+
+.statbox {
+    margin-top: -4px;
+    border: 3px solid #777777;
+    text-align: center;
+    padding: 0px 0px;
+}
+
+.boxbox {
+    padding-top: 15px;
+    margin-left: 50px;
 }
