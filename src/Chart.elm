@@ -1,9 +1,7 @@
-module Chart exposing (performance)
+module Chart exposing (chart)
 
 import Html exposing (..)
-import Html.Attributes exposing (class, href, title)
 import Plot exposing (..)
-import Round
 import Svg.Attributes exposing (stroke)
 import Types exposing (..)
 
@@ -48,65 +46,23 @@ data2 =
 
 wpmData : Model -> List ( Float, Float )
 wpmData m =
-    List.indexedMap (\x -> \(y,_) -> ( toFloat x, y )) <| List.reverse m.stats
+    List.indexedMap (\x -> \( y, _ ) -> ( toFloat x, y )) <| List.reverse m.stats
 
 
-prevStats : Model -> Html Msg
-prevStats m =
+chart : Model -> Html Msg
+chart m =
     let
-        w = Round.round 0 <| Maybe.withDefault  0 (Maybe.map Tuple.first <| List.head m.stats)
-        a = Round.round 0 <| Maybe.withDefault  0 (Maybe.map Tuple.second <| List.head m.stats)
+        data =
+            if wpmData m == [] then
+                mockData
+            else
+                wpmData m
     in
-        div
-            [ class "prevwpm" ]
-            [ text "Previous"
-            , br [] []
-            , div
-                  [class "statbox"]
-                  [ text <| w ++  " / " ++ a
-                  ]
-            ]
-
-avgStats : Model -> Html Msg
-avgStats m =
-    let
-        w = Round.round 0 <| avg <| List.map Tuple.first m.stats
-        a = Round.round 0 <| avg <| List.map Tuple.second m.stats
-    in
-        div
-            [ class "avgwpm" ]
-            [ text "Average"
-            , br [] []
-            , div
-                  [class "statbox"]
-                  [ text <| w ++  " / " ++ a
-                  ]
-            ]
-
-performance : Model -> Html Msg
-performance m =
-    let
-        data = (if (wpmData m) == [] then mockData else (wpmData m))
-        chart =
-            viewSeriesCustom
-                { defaultSeriesPlotCustomizations
-                    | height = 100
-                    , horizontalAxis = clearAxis
-                }
-                [ customLine m
-                ]
-                data
-
-    in
-
-    div [ class "statBox" ] [ div [class "boxbox"] [prevStats m, avgStats m], div [class "chart"] [ chart ] ]
-
-
-avg : List Float -> Float
-avg list =
-    case list of
-        [] ->
-            0
-
-        _ ->
-            (list |> List.sum) / (list |> List.length |> toFloat)
+    viewSeriesCustom
+        { defaultSeriesPlotCustomizations
+            | height = 100
+            , horizontalAxis = clearAxis
+        }
+        [ customLine m
+        ]
+        data

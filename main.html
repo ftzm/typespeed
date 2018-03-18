@@ -1,27 +1,32 @@
 <!DOCTYPE html>
 <html>
-  <head>
+
+<head>
     <meta charset="UTF-8">
-    <title>title</title>
+    <title>Typespeed</title>
     <link rel="stylesheet" type="text/css" href="style.css">
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto+Slab">
-  </head>
-  <body>
+</head>
+
+<body>
 
     <div id="app"></div>
-  <input name="myinput" value="whateve" style="position: absolute; left: -1000px; top: 0px" autofocus /> <!-- avoids browser capturing keys like ' -->
-  <script src="main.js"></script>
-  <script>
-    async function flagElm() {
-     var texts = await fetch('texts.json').then(response => response.json())
-     var node = document.getElementById('app');
-     Elm.App.embed(
-       node,
-       {texts: texts}
-     );
-    }
-    flagElm()
-  </script>
+    <input name="myinput" value="whateve" style="position: absolute; left: -1000px; top: 0px" autofocus />
+    <!-- avoids browser capturing keys like ' -->
+    <script src="main.js"></script>
+    <script>
+        async function flagElm() {
+            var texts = await fetch('texts.json').then(response => response.json())
+            var node = document.getElementById('app');
+            Elm.App.embed(
+                node, {
+                    texts: texts
+                }
+            );
+        }
+        flagElm()
+    </script>
 
-  </body>
+</body>
+
 </html>
