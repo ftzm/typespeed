@@ -134,6 +134,12 @@ keyToChar shift k =
                 HyphenMinus ->
                     Just '_'
 
+                Subtract ->
+                    Just '_'
+
+                Minus ->
+                    Just '_'
+
                 _ ->
                     Nothing
 
@@ -266,6 +272,12 @@ keyToChar shift k =
                     Just ','
 
                 HyphenMinus ->
+                    Just '-'
+
+                Subtract ->
+                    Just '-'
+
+                Minus ->
                     Just '-'
 
                 _ ->

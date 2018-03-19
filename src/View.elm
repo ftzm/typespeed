@@ -274,6 +274,6 @@ performance m =
             , avgStats m
             ]
         , div
-            []
+            [ class "chart" ]
             [ chart m ]
         ]
