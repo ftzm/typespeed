@@ -146,12 +146,8 @@ takeLast n l =
 viewTypeage : Model -> Html Msg
 viewTypeage m =
     let
-        l =
-            m.text
-
-        ks =
-            m.typed
-
+        l = m.text
+        ks = m.typed
         typedText =
             List.map
                 (\k ->
