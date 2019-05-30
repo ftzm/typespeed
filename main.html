@@ -16,7 +16,7 @@
     <script src="main.js"></script>
     <script>
         async function flagElm() {
-            var texts = await fetch('texts.json').then(response => response.json())
+            var texts = await fetch('texts.json', {mode: 'no-cors'} ).then(response => response.json())
             var node = document.getElementById('app');
             Elm.App.embed(
                 node, {
