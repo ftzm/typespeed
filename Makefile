@@ -1,4 +1,4 @@
-include $(shell nix-shell ../service_utils/shell.nix --run "")
+include $(shell nix-shell ../../service_utils/shell.nix --run "")
 
 .DEFAULT_GOAL := make
 

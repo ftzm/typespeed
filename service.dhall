@@ -1,15 +1,6 @@
-let
-  tag = env:DOCKER_TAG as Text
-
-in
-  { name =
-  	"typespeed"
-  , port =
-  	80
-  , tag =
-  	tag
-  , gateway =
-  	"main-gateway"
-  , hosts =
-  	[ "typespeed.fitzsimmons.io"]
-  }
+in  { name = "typespeed"
+	, repo = "ftzm"
+	, port = 80
+	, gateway = "main-gateway"
+	, hosts = [ "typespeed.fitzsimmons.io" ]
+	}
